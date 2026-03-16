@@ -59,6 +59,8 @@ function draw() {
     if (mouseIsPressed) {
       movers[i].applyForce(wind);
     }
+    let force = p5.Vector.sub(createVector(mouseX, mouseY), movers[i].position).normalize().mult(-0.002);
+    movers[i].applyForce(force);
     movers[i].applyForce(gravity);
     movers[i].checkEdges();
     movers[i].update();
