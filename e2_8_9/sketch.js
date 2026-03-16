@@ -15,7 +15,6 @@ class Mover {
 
   update() {
     this.velocity.add(this.acceleration);
-    this.velocity.limit(2);
     this.position.add(this.velocity);
 
     this.acceleration.mult(0);
@@ -65,79 +64,20 @@ class Mover {
       this.velocity.y *= bounce;
     }
   }
-
-  getType() {
-    return "Mover";
-  }
-}
-
-class Box extends Mover {
-  constructor(x, y, mass, width, height) {
-    super(x, y, mass);
-    this.w = width;
-    this.h = height;
-  }
-
-  getType() {
-    return "Box";
-  }
-
-  show() {
-    stroke(0);
-    fill(175);
-
-    rect(this.position.x, this.position.y, this.w, this.h);
-  }
-}
-
-class Liquid {
-  constructor(x, y, w, h, c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
-  }
-
-  show() {
-    noStroke();
-    fill(120);
-    rect(this.x, this.y, this.w, this.h);
-  }
-
-  contains(mover) {
-    return mover.position.x >= this.x && mover.position.x <= this.x + this.w 
-    && mover.position.y >= this.y && mover.position.y <= this.y + this.h;
-  }
-
-  calculateDrag(mover) {
-    let speed = mover.velocity.mag();
-    let dragMagnitude = this.c * speed * speed;
-    let dragForce = mover.velocity.copy();
-    dragForce.mult(-1).setMag(dragMagnitude);
-    if (mover.getType() == "Box") {
-      dragForce.mult(mover.w);
-    }
-    return dragForce;
-  }
 }
 
 let movers;
-let liquid;
 
 function setup() {
   createCanvas(600, 600);
   movers = new Array(10);
   for (let i = 0; i < 10; i++) {
-    // movers[i] = new Mover(random(width), random(0, height/2), random(5))
-    movers[i] = new Box(random(width), random(0, height/2), random(5), random(5, 30), random(5, 30));
+    movers[i] = new Mover(random(width), random(height), random(10))
   }
-  liquid = new Liquid(0, height * 3/5, width, height*2/5, 0.1);
 }
 
 function draw() {
   background(255);
-  liquid.show();
   let wind = createVector(0.05, 0);
   for (let i = 0; i < 10; i++) {
     let gravity = createVector(0, 0.1 * movers[i].mass);
@@ -148,11 +88,6 @@ function draw() {
     if (movers[i].contactEdge()) {
       let friction = movers[i].calculateFriction();
       movers[i].applyForce(friction);
-    }
-
-    if (liquid.contains(movers[i])) {
-      let drag = liquid.calculateDrag(movers[i])
-      movers[i].applyForce(drag);
     }
 
     movers[i].isSelected();
